@@ -74,4 +74,12 @@ final List<Product> loadedProducts = [
     imageUrl: "assets/images/printer-1516578_1920.jpg",
     description: "Impresora multifunción a color",
   ),
+
+   Product(
+    id: 9,
+    name: "Books Clásicos",
+    price: 29.99,
+    imageUrl: "assets/images/photo-1544947950-fa07a98d237f.jpeg",
+    description: "Impresora multifunción a color",
+  ),
 ];
