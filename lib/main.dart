@@ -1,7 +1,8 @@
 import 'package:ecommerce_connect_shop/providers/cart_provider.dart';
 import 'package:ecommerce_connect_shop/screens/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // This line is already correct, no change needed.
+import 'package:provider/provider.dart'; // Importar Provider
+
 
 
 void main() {
@@ -10,11 +11,11 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => CartProvider()),
       ],
-      child: const ConnectShopApp()));
+      child: const ConnetShopApp()));
 }
 
-class ConnetShopAppp extends StatelessWidget {
-  const ConnetShopAppp({super.key});
+class ConnetShopApp extends StatelessWidget {
+  const ConnetShopApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -31,4 +32,3 @@ class ConnetShopAppp extends StatelessWidget {
     );
   }
 }
-
