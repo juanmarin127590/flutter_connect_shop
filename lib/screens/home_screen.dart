@@ -1,7 +1,9 @@
 import 'package:ecommerce_connect_shop/models/product.dart';
 import 'package:ecommerce_connect_shop/providers/cart_provider.dart';
+import 'package:ecommerce_connect_shop/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -55,7 +57,10 @@ class HomeScreen extends StatelessWidget {
               icon: const Icon(Icons.shopping_cart, color: Colors.black54),
               onPressed: () {
                 // Aquí navegaremos a la pantalla del carrito más adelante
-                print("Ir al carrito");
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const CartScreen()
+                  ),
+                );
               },
             ),
           ),
