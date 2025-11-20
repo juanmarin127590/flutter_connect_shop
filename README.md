@@ -1,4 +1,4 @@
-# ecommerce_connect_shop
+# ecommerce_connect_shop whit Flutter migration
 
 A new Flutter project.
 
