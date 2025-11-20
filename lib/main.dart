@@ -1,5 +1,5 @@
-import 'package:ecommerce_connect_shop/providers/cart_provider.dart';
-import 'package:ecommerce_connect_shop/screens/home_screen.dart';
+import 'package:flutter_connect_shop/providers/cart_provider.dart';
+import 'package:flutter_connect_shop/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Importar Provider
 

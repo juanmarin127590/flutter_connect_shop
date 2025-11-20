@@ -1,4 +1,4 @@
-import 'package:ecommerce_connect_shop/models/product.dart';
+import 'package:flutter_connect_shop/models/product.dart';
 import 'package:flutter/material.dart';
 
 class CartItem {

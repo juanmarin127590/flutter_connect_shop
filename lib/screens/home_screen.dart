@@ -1,9 +1,9 @@
-import 'package:ecommerce_connect_shop/models/product.dart';
-import 'package:ecommerce_connect_shop/providers/cart_provider.dart';
-import 'package:ecommerce_connect_shop/screens/cart_screen.dart';
+import 'package:flutter_connect_shop/models/product.dart';
+import 'package:flutter_connect_shop/providers/cart_provider.dart';
+import 'package:flutter_connect_shop/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_connect_shop/screens/login_screen.dart';
 import 'package:provider/provider.dart';
-
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,7 +22,10 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(width: 10),
             const Text(
               "Connect Shop",
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -43,14 +46,20 @@ class HomeScreen extends StatelessWidget {
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
                       child: Text(
                         '${cart.itemCount}',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 10, color: Colors.white),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  )
+                  ),
               ],
             ),
             child: IconButton(
@@ -58,14 +67,83 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 // Aquí navegaremos a la pantalla del carrito más adelante
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const CartScreen()
-                  ),
+                  MaterialPageRoute(builder: (context) => const CartScreen()),
                 );
               },
             ),
           ),
         ],
       ),
+
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            // Cabecera del menú
+            DrawerHeader(
+              decoration: const BoxDecoration(color: Colors.orange),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 60,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Connect Shop',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                ],
+              ),
+            ),
+            // Opciones del menú (replicando tu navbar)
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Inicio'),
+              onTap: () => Navigator.pop(context), // Cierra el menú
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_bag),
+              title: const Text('Catálogo'),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: const Text('Carrito'),
+              onTap: () {
+                Navigator.pop(context); // Cierra el menú primero
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CartScreen()),
+                );
+              },
+            ),
+            const Divider(), // Línea divisora
+            ListTile(
+              leading: const Icon(Icons.login),
+              title: const Text('Login'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_add),
+              title: const Text('Registro'),
+              onTap: () {
+                // Tarea: Implementar RegisterScreen similar a LoginScreen
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+
       // ListView para permitir múltiples secciones desplazables
       body: ListView(
         children: [
@@ -90,7 +168,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-// Widget para la sección "Los Más Vendidos"
+  // Widget para la sección "Los Más Vendidos"
   Widget _buildTopSellersSection() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -117,13 +195,14 @@ class HomeScreen extends StatelessWidget {
             itemCount: topSellers.length,
             itemBuilder: (context, index) {
               final item = topSellers[index];
-             return ProductItem(
+              return ProductItem(
                 product: Product(
                   id: index, // O un ID único si lo tienes
                   name: item['name']!,
                   price: double.parse(item['price']!.replaceAll('\$', '')),
-                  imageUrl: item['image']!, 
-                  description: "Descripción del producto", // Puedes añadir una descripción genérica o dejarla vacía
+                  imageUrl: item['image']!,
+                  description:
+                      "Descripción del producto", // Puedes añadir una descripción genérica o dejarla vacía
                 ),
               );
             },
@@ -143,30 +222,57 @@ class HomeScreen extends StatelessWidget {
           _CategoryCard(
             title: 'Relojes favoritos',
             subcategories: [
-              {'name': 'Mujeres', 'image': 'assets/images/photo-1544117519-31a4b719223d.jpeg'},
-              {'name': 'Hombres', 'image': 'assets/images/photo-1523275335684-37898b6baf30.jpeg'},
-              {'name': 'Niñas', 'image': 'assets/images/photo-1594534475808-b18fc33b045e.jpeg'},
-              {'name': 'Niños', 'image': 'assets/images/photo-1544117519-31a4b719223d.jpeg'},
+              {
+                'name': 'Mujeres',
+                'image': 'assets/images/photo-1544117519-31a4b719223d.jpeg',
+              },
+              {
+                'name': 'Hombres',
+                'image': 'assets/images/photo-1523275335684-37898b6baf30.jpeg',
+              },
+              {
+                'name': 'Niñas',
+                'image': 'assets/images/photo-1594534475808-b18fc33b045e.jpeg',
+              },
+              {
+                'name': 'Niños',
+                'image': 'assets/images/photo-1544117519-31a4b719223d.jpeg',
+              },
             ],
-            onTap: () { /* Navegar a la página de catálogo de relojes */ },
+            onTap: () {
+              /* Navegar a la página de catálogo de relojes */
+            },
           ),
           const SizedBox(height: 16),
           _CategoryCard(
             title: 'Mejora tu PC aquí',
             subcategories: [
-              {'name': 'Portátiles', 'image': 'assets/images/laptop-7334774_1920.jpg'},
-              {'name': 'Equipo de PC', 'image': 'assets/images/photo-1587831990711-23ca6441447b.jpeg'},
-              {'name': 'Discos duros', 'image': 'assets/images/photo-1597872200969-2b65d56bd16b.jpeg'},
-              {'name': 'Monitores', 'image': 'assets/images/Monitor UltraWide-2557299_1920.jpg'},
+              {
+                'name': 'Portátiles',
+                'image': 'assets/images/laptop-7334774_1920.jpg',
+              },
+              {
+                'name': 'Equipo de PC',
+                'image': 'assets/images/photo-1587831990711-23ca6441447b.jpeg',
+              },
+              {
+                'name': 'Discos duros',
+                'image': 'assets/images/photo-1597872200969-2b65d56bd16b.jpeg',
+              },
+              {
+                'name': 'Monitores',
+                'image': 'assets/images/Monitor UltraWide-2557299_1920.jpg',
+              },
             ],
-            onTap: () { /* Navegar a la página de catálogo de PC */ },
+            onTap: () {
+              /* Navegar a la página de catálogo de PC */
+            },
           ),
           // Aquí se podrían agregar las otras tarjetas de categoría...
         ],
       ),
     );
   }
-
 }
 
 // Widget separado para cada producto
@@ -196,11 +302,10 @@ class ProductItem extends StatelessWidget {
           // Imagen
           Expanded(
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              child: Image.asset(
-                product.imageUrl,
-                fit: BoxFit.cover,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(10),
               ),
+              child: Image.asset(product.imageUrl, fit: BoxFit.cover),
             ),
           ),
           // Detalles
@@ -217,7 +322,10 @@ class ProductItem extends StatelessWidget {
                 ),
                 Text(
                   "\$${product.price}",
-                  style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 5),
                 // Botón Agregar
@@ -230,7 +338,10 @@ class ProductItem extends StatelessWidget {
                     ),
                     onPressed: () {
                       // Llamada a la lógica del Provider
-                      Provider.of<CartProvider>(context, listen: false).addToCart(product);
+                      Provider.of<CartProvider>(
+                        context,
+                        listen: false,
+                      ).addToCart(product);
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -273,7 +384,10 @@ class _CategoryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             GridView.builder(
               shrinkWrap: true,
@@ -288,7 +402,7 @@ class _CategoryCard extends StatelessWidget {
                 final sub = subcategories[index];
                 // Determina si la imagen es de la red o un asset local
                 final isNetworkImage = sub['image']!.startsWith('http');
-                
+
                 return Column(
                   children: [
                     Expanded(
@@ -300,7 +414,10 @@ class _CategoryCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(sub['name']!, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text(
+                      sub['name']!,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
                   ],
                 );
               },
@@ -323,14 +440,15 @@ class _CategoryCard extends StatelessWidget {
 class _ProductCard extends StatelessWidget {
   final Product product;
 
-  const _ProductCard({required this.product, required String imageUrl, required String name, required String price});
-  
+  const _ProductCard({super.key, required this.product});
 
+  
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2.0,
-      clipBehavior: Clip.antiAlias, // Recorta el contenido (la imagen) a la forma de la tarjeta
+      clipBehavior: Clip
+          .antiAlias, // Recorta el contenido (la imagen) a la forma de la tarjeta
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -346,7 +464,10 @@ class _ProductCard extends StatelessWidget {
               },
               // Widget a mostrar si hay un error al cargar la imagen
               errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.image_not_supported, color: Colors.grey);
+                return const Icon(
+                  Icons.image_not_supported,
+                  color: Colors.grey,
+                );
               },
             ),
           ),
@@ -354,9 +475,19 @@ class _ProductCard extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                Text(product.name, style: const TextStyle(fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                Text(
+                  product.name,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 4),
-                Text(product.price.toString(), style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
+                Text(
+                  product.price.toString(),
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
