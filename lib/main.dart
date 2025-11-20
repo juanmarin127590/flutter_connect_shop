@@ -1,5 +1,5 @@
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
-import 'package:flutter_connect_shop/screens/home_screen.dart';
+import 'package:flutter_connect_shop/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Importar Provider
 
@@ -28,7 +28,7 @@ class ConnetShopApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF4F6F9), // Color de fondo 
         useMaterial3: true,
       ),
-     home: const HomeScreen(),
+     home: const LoginScreen(),
     );
   }
 }
