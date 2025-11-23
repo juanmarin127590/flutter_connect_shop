@@ -3,6 +3,7 @@ import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:flutter_connect_shop/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
+import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -283,80 +284,91 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Container con decoración reemplaza a .card y sus sombras CSS
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () {
+        // Navegar a la pantalla de detalles del producto
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ProductDarailsScreen(product: product),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Imagen
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(10),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Imagen
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(10),
+                ),
+                child: Image.asset(product.imageUrl, fit: BoxFit.cover),
               ),
-              child: Image.asset(product.imageUrl, fit: BoxFit.cover),
             ),
-          ),
-          // Detalles
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  "\$${product.price}",
-                  style: const TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
+            // Detalles
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const SizedBox(height: 5),
-                // Botón Agregar
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange, // btn-warning
-                      foregroundColor: Colors.white,
+                  Text(
+                    "\$${product.price}",
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
                     ),
-                    onPressed: () {
-                      // Llamada a la lógica del Provider
-                      Provider.of<CartProvider>(
-                        context,
-                        listen: false,
-                      ).addToCart(product);
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${product.name} agregado al carrito!'),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    child: const Text("Agregar"),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 5),
+                  // Botón Agregar
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange, // btn-warning
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () {
+                        // Llamada a la lógica del Provider
+                        Provider.of<CartProvider>(
+                          context,
+                          listen: false,
+                        ).addToCart(product);
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '${product.name} agregado al carrito!',
+                            ),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: const Text("Agregar"),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -442,7 +454,6 @@ class _ProductCard extends StatelessWidget {
 
   const _ProductCard({super.key, required this.product});
 
-  
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -502,12 +513,12 @@ final List<Map<String, String>> topSellers = [
   {
     "name": "Crocs Clásicos",
     "price": "\$29.99",
-    "image": "assets/images/Monitor UltraWide-2557299_1920.jpg",
+    "image": "assets/images/crocs-clasicos-photo.jpeg",
   },
   {
     "name": "Camiseta Básica",
     "price": "\$12.99",
-    "image": "assets/images/keyboard-7386244_1920.jpg",
+    "image": "assets/images/camiseta-basica-blanca.jpg",
   },
   {
     "name": "Conjunto Negro",
@@ -517,6 +528,6 @@ final List<Map<String, String>> topSellers = [
   {
     "name": "Camiseta Granate",
     "price": "\$18.99",
-    "image": "assets/images/printer-1516578_1920.jpg",
+    "image": "assets/images/photo-1571945153237-4929e783af4a.jpeg",
   },
 ];
