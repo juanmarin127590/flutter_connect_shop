@@ -4,6 +4,7 @@ class Product {
   final String description;
   final double price;
   final String imageUrl;
+  final String category;
 
   Product({
     required this.id,
@@ -11,6 +12,7 @@ class Product {
     required this.description,
     required this.price,
     required this.imageUrl,
+    required this.category,
   });
 }
 
@@ -21,6 +23,8 @@ final List<Product> loadedProducts = [
     price: 1999,
     imageUrl: "assets/images/laptop-7334774_1920.jpg",
     description: "Laptop de alta gama para profesionales",
+    category: "Electrónica",
+
   ),
   Product(
     id: 2,
@@ -28,6 +32,7 @@ final List<Product> loadedProducts = [
     price: 120,
     imageUrl: "assets/images/keyboard-7386244_1920.jpg",
     description: "Teclado mecánico para gaming",
+    category: "Electrónica",
   ),
   Product(
     id: 3,
@@ -35,6 +40,7 @@ final List<Product> loadedProducts = [
     price: 75,
     imageUrl: "assets/images/beats-3273952_1920.jpg",
     description: "Auriculares con cancelación de ruido",
+    category: "Electrónica",
   ),
 
   Product(
@@ -43,6 +49,7 @@ final List<Product> loadedProducts = [
     price: 490,
     imageUrl: "assets/images/Monitor UltraWide-2557299_1920.jpg",
     description: "Monitor ultrawide para productividad",
+    category: "Electrónica",
   ),
 
   Product(
@@ -51,6 +58,7 @@ final List<Product> loadedProducts = [
     price: 60,
     imageUrl: "assets/images/Mouse-2341642_1920.jpg",
     description: "Mouse ergonómico inalámbrico",
+    category: "Electrónica",  
   ),
   Product(
     id: 6,
@@ -58,6 +66,7 @@ final List<Product> loadedProducts = [
     price: 300,
     imageUrl: "assets/images/chair gamer-7862491.jpg",
     description: "Silla ergonómica para gaming",
+    category: "Muebles",
   ),
 
   Product(
@@ -66,6 +75,7 @@ final List<Product> loadedProducts = [
     price: 85,
     imageUrl: "assets/images/web-cam-796227_1920.jpg",
     description: "Webcam 1080p para videoconferencias",
+    category: "Electrónica",
   ),
   Product(
     id: 8,
@@ -73,6 +83,7 @@ final List<Product> loadedProducts = [
     price: 245,
     imageUrl: "assets/images/printer-1516578_1920.jpg",
     description: "Impresora multifunción a color",
+    category: "Electrónica",
   ),
 
    Product(
@@ -81,5 +92,6 @@ final List<Product> loadedProducts = [
     price: 29.99,
     imageUrl: "assets/images/photo-1544947950-fa07a98d237f.jpeg",
     description: "Impresora multifunción a color",
+    category: "Libros",
   ),
 ];

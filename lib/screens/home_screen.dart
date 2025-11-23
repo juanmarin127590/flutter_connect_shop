@@ -2,13 +2,14 @@ import 'package:flutter_connect_shop/models/product.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:flutter_connect_shop/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_connect_shop/screens/catalog_screen.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
 import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +109,13 @@ class HomeScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.shopping_bag),
               title: const Text('Catálogo'),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CatalogScreen()),
+                );
+              } 
             ),
             ListTile(
               leading: const Icon(Icons.shopping_cart),
@@ -149,7 +156,7 @@ class HomeScreen extends StatelessWidget {
       body: ListView(
         children: [
           _buildTopSellersSection(),
-          _buildCategoriesSection(),
+          _buildCategoriesSection(context),
           // GridView para los productos principales
           GridView.builder(
             shrinkWrap: true,
@@ -202,8 +209,8 @@ class HomeScreen extends StatelessWidget {
                   name: item['name']!,
                   price: double.parse(item['price']!.replaceAll('\$', '')),
                   imageUrl: item['image']!,
-                  description:
-                      "Descripción del producto", // Puedes añadir una descripción genérica o dejarla vacía
+                  description: item['description'] ?? '',
+                  category: item['category'] ?? '',
                 ),
               );
             },
@@ -214,7 +221,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Widget para la sección de categorías
-  Widget _buildCategoriesSection() {
+  Widget _buildCategoriesSection(BuildContext context) {
     return Container(
       color: Colors.grey[100],
       padding: const EdgeInsets.all(16.0),
@@ -242,6 +249,12 @@ class HomeScreen extends StatelessWidget {
             ],
             onTap: () {
               /* Navegar a la página de catálogo de relojes */
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder:  (_) => const CatalogScreen(categoryFilter: 'Relojes'),
+                ),
+              );
             },
           ),
           const SizedBox(height: 16),
@@ -267,6 +280,12 @@ class HomeScreen extends StatelessWidget {
             ],
             onTap: () {
               /* Navegar a la página de catálogo de PC */
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder:  (_) => const CatalogScreen(categoryFilter: 'Electrónica'),
+                ),  
+              );
             },
           ),
           // Aquí se podrían agregar las otras tarjetas de categoría...
@@ -298,8 +317,8 @@ class ProductItem extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              BoxShadow(
+              color: Colors.black.withAlpha(26),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),
@@ -448,86 +467,34 @@ class _CategoryCard extends StatelessWidget {
   }
 }
 
-// Widget reutilizable para una tarjeta de producto
-class _ProductCard extends StatelessWidget {
-  final Product product;
-
-  const _ProductCard({super.key, required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.0,
-      clipBehavior: Clip
-          .antiAlias, // Recorta el contenido (la imagen) a la forma de la tarjeta
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Image.network(
-              product.imageUrl,
-              fit: BoxFit.cover, // La imagen cubre todo el espacio disponible
-              // Indicador de carga mientras la imagen de red se descarga
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return const Center(child: CircularProgressIndicator());
-              },
-              // Widget a mostrar si hay un error al cargar la imagen
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(
-                  Icons.image_not_supported,
-                  color: Colors.grey,
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  product.price.toString(),
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // Datos de ejemplo (en una aplicación real, esto vendría de una API o base de datos)
 final List<Map<String, String>> topSellers = [
   {
     "name": "Crocs Clásicos",
     "price": "\$29.99",
     "image": "assets/images/crocs-clasicos-photo.jpeg",
+    "description": "Comodidad y estilo en cada paso",
+    "category": "Calzado",
   },
   {
     "name": "Camiseta Básica",
     "price": "\$12.99",
     "image": "assets/images/camiseta-basica-blanca.jpg",
+    "description": "Camiseta de algodón suave y transpirable",
+    "category": "Ropa",
   },
   {
     "name": "Conjunto Negro",
     "price": "\$45.99",
     "image": "assets/images/photo-1551028719-00167b16eac5.jpeg",
+    "description": "Elegante conjunto para cualquier ocasión",
+    "category": "Ropa",
   },
   {
     "name": "Camiseta Granate",
     "price": "\$18.99",
     "image": "assets/images/photo-1571945153237-4929e783af4a.jpeg",
+    "description": "Camiseta de color granate con ajuste cómodo",
+    "category": "Ropa",
   },
 ];
