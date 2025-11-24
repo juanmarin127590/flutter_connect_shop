@@ -51,7 +51,9 @@ class _CatalogoItem extends StatelessWidget {
         // Acción al tocar el producto (opcional)
         Navigator.push(
           context,
-            MaterialPageRoute(builder: (_) => ProductDarailsScreen(product: product)),
+          MaterialPageRoute(
+            builder: (_) => ProductDarailsScreen(product: product),
+          ),
         );
       },
 
@@ -62,12 +64,15 @@ class _CatalogoItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
+              child: Hero(
+                tag: product.id,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
+                  child: Image.asset(product.imageUrl, fit: BoxFit.cover),
                 ),
-                child: Image.asset(product.imageUrl, fit: BoxFit.cover),
               ),
             ),
             Padding(

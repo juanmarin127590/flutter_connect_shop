@@ -13,9 +13,7 @@ class ProductDarailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       // Barra de navegación con el nombre del producto
-      appBar: AppBar(
-        title: Text(product.name),
-      ),
+      appBar: AppBar(title: Text(product.name)),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,9 +22,9 @@ class ProductDarailsScreen extends StatelessWidget {
             SizedBox(
               height: 300,
               width: double.infinity,
-              child: Image.asset(
-                product.imageUrl,
-                fit: BoxFit.cover,
+              child: Hero(
+                tag: product.id,
+                child: Image.asset(product.imageUrl, fit: BoxFit.cover),
               ),
             ),
             const SizedBox(height: 20),
@@ -61,12 +59,10 @@ class ProductDarailsScreen extends StatelessWidget {
                   // Descripción del producto
                   const Text(
                     "Descripción",
-                    style: TextStyle(fontSize: 18,
-                      fontWeight: FontWeight.bold
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                    const SizedBox(height: 5),
-                    Text(
+                  const SizedBox(height: 5),
+                  Text(
                     product.description,
                     style: const TextStyle(fontSize: 16, height: 1.5),
                   ),
@@ -76,7 +72,7 @@ class ProductDarailsScreen extends StatelessWidget {
             const SizedBox(height: 20),
           ],
         ),
-      ),  
+      ),
 
       //Boton de agregar al carrito
       bottomNavigationBar: Container(
@@ -84,8 +80,8 @@ class ProductDarailsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(26),
+            BoxShadow(
+              color: Colors.black.withAlpha(26),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -94,7 +90,10 @@ class ProductDarailsScreen extends StatelessWidget {
         child: ElevatedButton.icon(
           onPressed: () {
             // Lógica para agregar al carrito
-            Provider.of<CartProvider>(context, listen: false).addToCart(product);
+            Provider.of<CartProvider>(
+              context,
+              listen: false,
+            ).addToCart(product);
 
             // feedback al usuario
             ScaffoldMessenger.of(context).showSnackBar(
@@ -104,7 +103,10 @@ class ProductDarailsScreen extends StatelessWidget {
                 action: SnackBarAction(
                   label: 'DESHACER',
                   onPressed: () {
-                    Provider.of<CartProvider>(context, listen: false).removeFromCart(product.id);
+                    Provider.of<CartProvider>(
+                      context,
+                      listen: false,
+                    ).removeFromCart(product.id);
                   },
                 ),
               ),
@@ -117,10 +119,13 @@ class ProductDarailsScreen extends StatelessWidget {
             backgroundColor: Colors.orange,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 15),
-            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            textStyle: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
     );
   }
-}   
+}

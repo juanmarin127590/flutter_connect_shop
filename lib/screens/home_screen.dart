@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,53 +25,88 @@ class HomeScreen extends StatelessWidget {
             const Text(
               "Connect Shop",
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.black87,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 20),
+            // Barra de búsqueda expandida
+            Expanded(
+              child: Padding(
+                // Añadimos padding para reducir el ancho de la barra
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    isDense: true, // Reduce la altura del TextField
+                    hintText: 'Buscar en Connect Shop...',
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Colors.black54,
+                      size: 20,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 10,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    // Lógica de búsqueda aquí : Implementar filtro de productos a futuro
+                  },
+                ),
               ),
             ),
           ],
         ),
         actions: [
           // Icono del carrito con contador (Badge)
-          Consumer<CartProvider>(
-            builder: (_, cart, ch) => Stack(
-              alignment: Alignment.center,
-              children: [
-                ch!,
-                if (cart.itemCount > 0)
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Text(
-                        '${cart.itemCount}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.white,
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0), // Margen a la derecha
+            child: Consumer<CartProvider>(
+              builder: (_, cart, ch) => Stack(
+                alignment: Alignment.center,
+                children: [
+                  ch!,
+                  if (cart.itemCount > 0)
+                    Positioned(
+                      right: 6,
+                      top: 2,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${cart.itemCount}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.shopping_cart, color: Colors.black54),
-              onPressed: () {
-                // Aquí navegaremos a la pantalla del carrito más adelante
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const CartScreen()),
-                );
-              },
+                ],
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.shopping_cart, color: Colors.black54),
+                onPressed: () {
+                  // Aquí navegaremos a la pantalla del carrito
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const CartScreen()),
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -115,7 +150,7 @@ class HomeScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (_) => const CatalogScreen()),
                 );
-              } 
+              },
             ),
             ListTile(
               leading: const Icon(Icons.shopping_cart),
@@ -152,7 +187,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
 
-      // ListView para permitir múltiples secciones desplazables
+      // Usamos un Column para poner la barra de búsqueda arriba y la lista de contenido debajo.
       body: ListView(
         children: [
           _buildTopSellersSection(),
@@ -205,7 +240,8 @@ class HomeScreen extends StatelessWidget {
               final item = topSellers[index];
               return ProductItem(
                 product: Product(
-                  id: index, // O un ID único si lo tienes
+                  // Usamos un ID único para evitar conflictos de Hero tag
+                  id: -1 - index,
                   name: item['name']!,
                   price: double.parse(item['price']!.replaceAll('\$', '')),
                   imageUrl: item['image']!,
@@ -250,9 +286,10 @@ class HomeScreen extends StatelessWidget {
             onTap: () {
               /* Navegar a la página de catálogo de relojes */
               Navigator.push(
-                context, 
+                context,
                 MaterialPageRoute(
-                  builder:  (_) => const CatalogScreen(categoryFilter: 'Relojes'),
+                  builder: (_) =>
+                      const CatalogScreen(categoryFilter: 'Relojes'),
                 ),
               );
             },
@@ -281,10 +318,11 @@ class HomeScreen extends StatelessWidget {
             onTap: () {
               /* Navegar a la página de catálogo de PC */
               Navigator.push(
-                context, 
+                context,
                 MaterialPageRoute(
-                  builder:  (_) => const CatalogScreen(categoryFilter: 'Electrónica'),
-                ),  
+                  builder: (_) =>
+                      const CatalogScreen(categoryFilter: 'Electrónica'),
+                ),
               );
             },
           ),
@@ -317,7 +355,7 @@ class ProductItem extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
-              BoxShadow(
+            BoxShadow(
               color: Colors.black.withAlpha(26),
               blurRadius: 5,
               offset: const Offset(0, 2),
@@ -329,11 +367,14 @@ class ProductItem extends StatelessWidget {
           children: [
             // Imagen
             Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(10),
+              child: Hero(
+                tag: product.id,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(10),
+                  ),
+                  child: Image.asset(product.imageUrl, fit: BoxFit.cover),
                 ),
-                child: Image.asset(product.imageUrl, fit: BoxFit.cover),
               ),
             ),
             // Detalles

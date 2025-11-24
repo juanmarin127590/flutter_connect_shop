@@ -21,10 +21,41 @@ class CartScreen extends StatelessWidget {
           // 1. Lista de Artículos (Expandida para ocupar el espacio disponible)
           Expanded(
             child: cart.cartItems.isEmpty
-                ? const Center(
-                    child: Text(
-                      "No hay artículos en el carrito",
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.shopping_cart_outlined,
+                          size: 100,
+                          color: Colors.grey[300],
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Tu carrito está vacío",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text("¡Empieza a agregar productos increíbles!"),
+                        const SizedBox(height: 30),
+                        ElevatedButton(
+                          onPressed: () =>
+                              Navigator.of(context).pop(), // Volver al Home
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: const Text("IR A COMPRAR"),
+                        ),
+                      ],
                     ),
                   )
                 : ListView.builder(
@@ -110,7 +141,14 @@ class CartScreen extends StatelessWidget {
                               ),
                             );
                           },
-                    child: const Text("COMPRAR"),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("SIGUIENTE"),
+                        SizedBox(width: 5),
+                        Icon(Icons.shopping_cart_checkout),
+                      ],
+                    ),
                   ),
                 ],
               ),
