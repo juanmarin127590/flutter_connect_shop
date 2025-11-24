@@ -94,4 +94,30 @@ final List<Product> loadedProducts = [
     description: "Impresora multifunción a color",
     category: "Libros",
   ),
+
+   Product(
+    id: 10,
+    name: "Pantalon Casual",
+    price: 25.99,
+    imageUrl: "assets/images/photo-1594633312681-425c7b97ccd1.jpeg",
+    description: "pantalon casual para uso diario, hecho de algodón cómodo y duradero.",
+    category: "Moda",
+  ),
+   Product(
+    id: 11,
+    name: "Silla minimalista",
+    price: 89.67,
+    imageUrl: "assets/images/photo-1586023492125-27b2c045efd7.jpeg",
+    description: "Silla de diseño minimalista para oficina sala de estar o cualquier espacio que necesite un toque moderno y elegante.",
+    category: "Muebles",
+  ),
+   Product(
+    id: 12,
+    name: "Juego de ollas de cerámica",
+    price: 120.50,
+    imageUrl: "assets/images/photo-1556909114-f6e7ad7d3136.jpeg",
+    description: "Impresora multifunción a color",
+    category: "Hogar",
+  ),
+  
 ];

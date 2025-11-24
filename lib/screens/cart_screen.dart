@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_connect_shop/screens/checkout_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 
@@ -32,12 +33,17 @@ class CartScreen extends StatelessWidget {
                       final item = cart.cartItems[i];
                       // CartItemWidget: Componente visual de cada fila
                       return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 4,
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(8),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundImage: AssetImage(item.product.imageUrl),
+                              backgroundImage: AssetImage(
+                                item.product.imageUrl,
+                              ),
                               backgroundColor: Colors.transparent,
                             ),
                             title: Text(item.product.name),
@@ -47,13 +53,20 @@ class CartScreen extends StatelessWidget {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text("${item.quantity} x \$${item.product.price}"),
+                                Text(
+                                  "${item.quantity} x \$${item.product.price}",
+                                ),
                                 IconButton(
-                                  icon: const Icon(Icons.delete, color: Color.fromARGB(255, 236, 181, 29)),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Color.fromARGB(255, 236, 181, 29),
+                                  ),
                                   onPressed: () {
                                     // Llamada a la lógica para eliminar
-                                    Provider.of<CartProvider>(context, listen: false)
-                                        .removeFromCart(item.product.id);
+                                    Provider.of<CartProvider>(
+                                      context,
+                                      listen: false,
+                                    ).removeFromCart(item.product.id);
                                   },
                                 ),
                               ],
@@ -87,17 +100,18 @@ class CartScreen extends StatelessWidget {
                     backgroundColor: Colors.blue,
                   ),
                   TextButton(
-                    onPressed: cart.cartItems.isEmpty 
-                        ? null 
+                    onPressed: cart.cartItems.isEmpty
+                        ? null
                         : () {
-                            // Aquí iría la lógica de finalizar compra (Checkout)
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("¡Compra confirmada!"))
+                            // NAVEGACIÓN AL CHECKOUT
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const CheckoutScreen(),
+                              ),
                             );
-                            cart.clear(); // Limpiamos el carrito
                           },
                     child: const Text("COMPRAR"),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -107,7 +121,3 @@ class CartScreen extends StatelessWidget {
     );
   }
 }
-      
-
-
-
