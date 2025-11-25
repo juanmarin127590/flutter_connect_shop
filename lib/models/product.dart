@@ -14,6 +14,49 @@ class Product {
     required this.imageUrl,
     required this.category,
   });
+
+  // Factory Constructor adaptado a tu Entidad Java "Producto"
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      // 1. Mapeo exacto con 'idProducto' de Java
+      id: json['idProducto'] ?? 0,
+      
+      // 2. Mapeo exacto con 'nombreProducto' de Java
+      name: json['nombreProducto'] ?? 'Sin nombre',
+      
+      // 3. Mapeo exacto con 'descripcionLarga' de Java
+      description: json['descripcionLarga'] ?? '',
+      
+      // 4. Mapeo exacto con 'precio'. Convertimos a double porque BigDecimal puede venir como número o string
+      price: (json['precio'] != null) 
+          ? double.tryParse(json['precio'].toString()) ?? 0.0 
+          : 0.0,
+      
+      // 5. Mapeo exacto con 'imagenUrl' de Java
+      // Nota: Java usa 'imagenUrl', NO 'imagen_principal_url' (ese es el nombre en BD, no en JSON)
+      imageUrl: json['imagenUrl'] ?? 'assets/images/placeholder.png', 
+      
+      // 6. Extracción inteligente de Categoría
+      // Tu entidad Java devuelve un objeto "categoria", así que entramos a él y sacamos "nombreCategoria"
+      //
+      category: json['categoria'] != null 
+          ? (json['categoria']['nombreCategoria'] ?? 'General') 
+          : 'General',
+    );
+  }
+
+  // Método opcional para enviar datos al servidor (si necesitaras crear productos desde la app)
+  Map<String, dynamic> toJson() {
+    return {
+      'idProducto': id,
+      'nombreProducto': name,
+      'descripcionLarga': description,
+      'precio': price,
+      'imagenUrl': imageUrl,
+      // Nota: Para enviar una categoría al guardar, usualmente envías solo el ID:
+      // 'categoria': { 'idCategoria': ... }
+    };
+  }
 }
 
 final List<Product> loadedProducts = [
