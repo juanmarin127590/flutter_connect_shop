@@ -1,5 +1,6 @@
 import 'package:flutter_connect_shop/models/product.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
+import 'package:flutter_connect_shop/providers/products_provider.dart';
 import 'package:flutter_connect_shop/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_connect_shop/screens/catalog_screen.dart';
@@ -7,11 +8,31 @@ import 'package:flutter_connect_shop/screens/login_screen.dart';
 import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+ @override
+  void initState() {
+    super.initState();
+    // Usamos addPostFrameCallback para esperar a que termine el build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProductsProvider>(context, listen: false).fetchAndSetProducts();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Obtenemos los productos del Provider (ya no de la lista estática dummy)
+    final productsData = Provider.of<ProductsProvider>(context);
+    final products = productsData.items;
+    final isLoading = productsData.isLoading;
+
     return Scaffold(
       // AppBar reemplaza a la <nav> del HTML
       appBar: AppBar(
@@ -187,27 +208,62 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
 
-      // Usamos un Column para poner la barra de búsqueda arriba y la lista de contenido debajo.
-      body: ListView(
-        children: [
-          _buildTopSellersSection(),
-          _buildCategoriesSection(context),
-          // GridView para los productos principales
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(10.0),
-            itemCount: loadedProducts.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4, // 4 columnas
-              childAspectRatio: 3 / 4, // Relación de aspecto de la tarjeta
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator()) // Spinner mientras carga
+          : RefreshIndicator(
+              // Al refrescar, recargamos los productos del Provider
+              onRefresh: () => Provider.of<ProductsProvider>(
+                context,
+                listen: false,
+              ).fetchAndSetProducts(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    _buildTopSellersSection(),
+                    _buildCategoriesSection(context),
+
+                    // Título para la sección de la API
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Catálogo General",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Grid de Productos de la API
+                    products.isEmpty 
+                        ? const Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Text("No se pudieron cargar los productos."),
+                          )
+                          // GridView para los productos principales
+                          : GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: const EdgeInsets.all(10.0),
+                              itemCount: products.length,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4, // 4 columnas
+                                    childAspectRatio: 3 / 4, // Relación de aspecto de la tarjeta
+                                    crossAxisSpacing: 10,
+                                    mainAxisSpacing: 10,
+                                  ),
+                              //Pasmaos los productos de la BD al widget ProductItem
+                              itemBuilder: (ctx, i) =>ProductItem(product: products[i]),
+                            ),
+                  ],
+                ),
+              ),
             ),
-            itemBuilder: (ctx, i) => ProductItem(product: loadedProducts[i]),
-          ),
-        ],
-      ),
     );
   }
 
@@ -341,12 +397,15 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // LÓGICA DE DETECCIÓN DE IMAGEN
+    final isNetworkImage = product.imageUrl.startsWith('http');
+
     return GestureDetector(
       onTap: () {
         // Navegar a la pantalla de detalles del producto
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => ProductDarailsScreen(product: product),
+            builder: (context) => ProductDetailsScreen(product: product),
           ),
         );
       },
@@ -373,7 +432,16 @@ class ProductItem extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(10),
                   ),
-                  child: Image.asset(product.imageUrl, fit: BoxFit.cover),
+                  child: isNetworkImage
+                      ? Image.network(
+                          product.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (ctx, error, stackTrace) => Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                          ), // Fallback si la URL falla
+                        )
+                      : Image.asset(product.imageUrl, fit: BoxFit.cover),
                 ),
               ),
             ),

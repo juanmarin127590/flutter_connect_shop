@@ -34,7 +34,7 @@ class Product {
       
       // 5. Mapeo exacto con 'imagenUrl' de Java
       // Nota: Java usa 'imagenUrl', NO 'imagen_principal_url' (ese es el nombre en BD, no en JSON)
-      imageUrl: json['imagenUrl'] ?? 'assets/images/placeholder.png', 
+      imageUrl: json['imagenUrl'] ?? 'assets/images/logo.png', 
       
       // 6. Extracción inteligente de Categoría
       // Tu entidad Java devuelve un objeto "categoria", así que entramos a él y sacamos "nombreCategoria"
@@ -58,6 +58,7 @@ class Product {
     };
   }
 }
+
 
 final List<Product> loadedProducts = [
   Product(

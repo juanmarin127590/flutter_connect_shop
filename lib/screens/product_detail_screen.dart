@@ -3,11 +3,11 @@ import 'package:flutter_connect_shop/models/product.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 
-class ProductDarailsScreen extends StatelessWidget {
+class ProductDetailsScreen extends StatelessWidget {
   // Recibimos producto a mostrar como argumento
   final Product product;
 
-  const ProductDarailsScreen({super.key, required this.product});
+  const ProductDetailsScreen({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
