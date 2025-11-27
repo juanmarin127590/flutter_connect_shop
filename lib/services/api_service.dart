@@ -28,16 +28,34 @@ class ApiService {
     }
   }
   
-  // Método esqueleto para Login (lo implementaremos luego)
-  Future<bool> login(String email, String password) async {
-    final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.loginEndpoint}');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
+  // Método para Login 
+  Future<String?> login(String email, String password) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}/auth/login');
     
-    return response.statusCode == 200;
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Éxito: El servidor devuelve un JSON con el token
+        // Según tu DTO Java, el campo se llama "accessToken"
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['accessToken']; 
+      } else {
+        // Error: Credenciales inválidas (401) o error del servidor
+        print('Error Login: ${response.statusCode} - ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Error de conexión en Login: $e');
+      return null;
+    }
   }
 
 }

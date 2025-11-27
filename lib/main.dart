@@ -1,3 +1,4 @@
+import 'package:flutter_connect_shop/providers/auth_provider.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:flutter_connect_shop/providers/products_provider.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
@@ -31,6 +32,7 @@ class ConnetShopApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ProductsProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
         title: 'Connect Shop',

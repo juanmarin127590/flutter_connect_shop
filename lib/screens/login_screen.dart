@@ -1,6 +1,8 @@
+import 'package:flutter_connect_shop/providers/auth_provider.dart';
 import 'package:flutter_connect_shop/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_connect_shop/screens/register_screen.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,14 +16,42 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void _submitLogin() {
+ Future<void> _submitLogin() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('¡Inicio de sesión exitoso!')),
+      // Usamos el AuthProvider para intentar loguearnos
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      
+      final exito = await authProvider.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+
+      if (!mounted) return; // Seguridad por si la pantalla se cierra
+
+      if (exito) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('¡Bienvenido de nuevo!')),
+        );
+        // Navegar al Home y reemplazar la pantalla de Login
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        // Mostrar error si falló (credenciales incorrectas)
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Error de acceso'),
+            content: const Text('Correo o contraseña incorrectos.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('OK'),
+              )
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -89,22 +119,33 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 30),
 
                     // Botón de Acción
-                    SizedBox(
+                    Consumer<AuthProvider>(
+                      builder: (context, auth, child) => SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: _submitLogin,
+                        onPressed: auth.isLoading ? null : _submitLogin,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
                         ),
-                        child: const Text(
-                          "ACCEDER",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        child: auth.isLoading
+                          ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                            ),
+                          )
+                          : const Text(
+                            "ACCEDER",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                      ),
                       ),
                     ),
-                     const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     TextButton(
                       onPressed: () {
