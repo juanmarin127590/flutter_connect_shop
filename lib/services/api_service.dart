@@ -58,5 +58,31 @@ class ApiService {
     }
   }
 
+  // Método para crear un pedido (Requiere Token)
+  Future<bool> createOrder(String token, Map<String, dynamic> orderData) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}/pedidos');
+    
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Token JWT en el header
+        },
+        body: jsonEncode(orderData),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      } else {
+        print('Error creando pedido: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error conexión pedido: $e');
+      return false;
+    }
+  }
+
 }
 
