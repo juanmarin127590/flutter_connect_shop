@@ -13,16 +13,20 @@ class AuthProvider extends ChangeNotifier {
 
   // Constructor: Intenta cargar el token apenas se crea el Provider
   AuthProvider() {
-    _tryAutoLogin();
+    tryAutoLogin();
   }
 
-  Future<void> _tryAutoLogin() async {
+  Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('userData')) return;
+    if (!prefs.containsKey('jwt_token')) {
+      return false;
+    }
 
-    final extractedToken = prefs.getString('userData');
+    final extractedToken = prefs.getString('jwt_token');
     _token = extractedToken;
     notifyListeners();
+    // Devolvemos true si encontramos un token
+    return true;
   }
 
   Future<bool> login(String email, String password) async {
@@ -35,12 +39,12 @@ class AuthProvider extends ChangeNotifier {
 
     if (tokenRecibido != null) {
       _token = tokenRecibido; // Asignar el token directamente
-      _isLoading = false;
 
       // Si recibimos un token, lo guardamos
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString('userData', _token!);
+      await prefs.setString('jwt_token', _token!);
 
+      _isLoading = false;
       notifyListeners();
       return true; // Login exitoso
     } else {
@@ -53,9 +57,9 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     _token = null;
     notifyListeners();
-    // BORRAR DEL DISCO
+    // Limpiamos el almacenamiento al salir
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove('userData');
+    prefs.remove('jwt_token');
   }
   
 }

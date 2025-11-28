@@ -1,6 +1,7 @@
 import 'package:flutter_connect_shop/providers/auth_provider.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:flutter_connect_shop/providers/products_provider.dart';
+import 'package:flutter_connect_shop/screens/home_screen.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -42,7 +43,22 @@ class ConnetShopApp extends StatelessWidget {
           scaffoldBackgroundColor: const Color(0xFFF4F6F9), // Color de fondo
           useMaterial3: true,
         ),
-        home: const LoginScreen(),
+        home: Consumer<AuthProvider>(
+          builder: (ctx, auth, _) {
+            // Si está autenticado, vamos al Home
+            if (auth.isAuthenticated) {
+              return const HomeScreen();
+            }
+            // Si no, intentamos el autologin y mostramos un spinner mientras tanto
+            return FutureBuilder(
+              future: auth.tryAutoLogin(),
+              builder: (ctx, authResultSnapshot) =>
+                  authResultSnapshot.connectionState == ConnectionState.waiting
+                      ? const Scaffold(body: Center(child: CircularProgressIndicator())) // Pantalla de carga
+                      : const LoginScreen(), // Si el autologin falla, vamos al Login
+            );
+          },
+        ),
       ),
     );
   }

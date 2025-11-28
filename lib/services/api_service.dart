@@ -67,19 +67,20 @@ class ApiService {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Token JWT en el header
+          'Authorization': 'Bearer $token', // Inyectamos el token Bearer
         },
         body: jsonEncode(orderData),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
+        print("Pedido creado con éxito: ${response.body}");
         return true;
       } else {
         print('Error creando pedido: ${response.statusCode} - ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Error conexión pedido: $e');
+      print('Excepción al crear pedido: $e');
       return false;
     }
   }

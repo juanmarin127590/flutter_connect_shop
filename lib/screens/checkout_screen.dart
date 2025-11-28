@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_connect_shop/providers/auth_provider.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:flutter_connect_shop/screens/home_screen.dart';
+import 'package:flutter_connect_shop/services/api_service.dart';
 import 'package:provider/provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -29,15 +31,50 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.dispose();
   }
 
-  void _confirmarOrden() {
+  void _confirmarOrden() async {
     // Aquí se procesaría la orden
     if (_formKey.currentState!.validate()) {
-      // 1. Aquí iría la lógica para enviar el pedido a tu Backend (Spring Boot)
+      // 1. Obtener el token del usuario logueado
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final token = authProvider.token;
 
-      // 2. Limpiar el carrito (si tienes un carrito implementado)
-      Provider.of<CartProvider>(context, listen: false).clear();
+      if (token == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error: No estás autenticado. Por favor inicia sesión.')),
+        );
+        return;
+      }
+
+      // preparar datos de la orden
+      final cart = Provider.of<CartProvider>(context, listen: false);
+
+      // 2. Crear el request de laorden en el servidor (para prueba usaremos IDs hardcodeados (fijos))
+      final orderData = {
+        "direccionEnvio": {
+          "idDireccion": 3
+          },
+        "metodoPago": { 
+            "idMetodoPago": 1 
+        },
+        "observacionCliente": "Por favor, entregar en portería.", 
+        "detalles": cart.cartItems.map((item) => {
+          "producto": { 
+            "idProducto": item.product.id
+            },
+          "cantidad": item.quantity,
+          //"precioUnitario": item.product.price
+        }).toList(),
+        //"montoTotal": cart.totalAmount
+      };
       
-      // 3. Mostrar una confirmación al usuario
+      // 3. Enviar al Backend
+      final apiService = ApiService();
+      final exito = await apiService.createOrder(token, orderData);
+
+      if (exito) {
+        cart.clear(); // Limpiamos carrito local
+        if (!mounted) return;
+
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -57,6 +94,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ],
         ),
       );
+    } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al procesar el pedido. Intenta nuevamente.')),
+        );
+      }
     }
   }
 
@@ -86,7 +129,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text("Total a Pagar:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text("\$${cart.totalPrice.toStringAsFixed(2)}", style: const TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.bold)),
+                    Text("\$${cart.totalAmount.toStringAsFixed(2)}", style: const TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),

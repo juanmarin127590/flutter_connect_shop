@@ -19,7 +19,7 @@ class CartProvider extends ChangeNotifier {
   int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
 
   // Getter para el precio total
-  double get totalPrice =>
+  double get totalAmount =>
       _items.fold(0, (sum, item) => sum + (item.product.price * item.quantity));
 
   // Logica de addToCart

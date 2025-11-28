@@ -125,7 +125,7 @@ class CartScreen extends StatelessWidget {
                   // Chip es un widget visualmente agradable para etiquetas
                   Chip(
                     label: Text(
-                      "\$${cart.totalPrice.toStringAsFixed(2)}",
+                      "\$${cart.totalAmount.toStringAsFixed(2)}",
                       style: const TextStyle(color: Colors.white),
                     ),
                     backgroundColor: Colors.blue,
