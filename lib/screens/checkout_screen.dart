@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_connect_shop/models/delivery_address.dart';
 import 'package:flutter_connect_shop/providers/auth_provider.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
+import 'package:flutter_connect_shop/providers/delivery_address_provider.dart';
 import 'package:flutter_connect_shop/screens/home_screen.dart';
 import 'package:flutter_connect_shop/services/api_service.dart';
 import 'package:provider/provider.dart';
@@ -9,71 +11,141 @@ class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key}); 
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState(); //
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _formKey = GlobalKey<FormState>();
+  
+  late Future _direccionesFuture;
+  Direccion? _direccionSeleccionada;
+  bool _mostrarFormulario = false;
 
-  // Controladores para los datos de envío
-  final _nameController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
+  // Controladores para el formulario de nueva dirección
+  final _nombreDestinatarioController = TextEditingController();
+  final _callePrincipalController = TextEditingController();
+  final _numeroExteriorController = TextEditingController();
+  final _informacionAdicionalController = TextEditingController();
+  final _ciudadController = TextEditingController();
+  final _estadoController = TextEditingController();
+  final _codigoPostalController = TextEditingController();
+  final _paisController = TextEditingController();
+  bool _esPrincipal = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _direccionesFuture = _cargarDirecciones();
+  }
+
+  Future _cargarDirecciones() async {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    if (token != null) {
+      await Provider.of<DireccionProvider>(context, listen: false)
+          .fetchDirecciones(token);
+    }
+  }
 
   @override
   void dispose() {
-    // Limpiar los controladores cuando el widget se elimine
-    _nameController.dispose();
-    _addressController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
+    _nombreDestinatarioController.dispose();
+    _callePrincipalController.dispose();
+    _numeroExteriorController.dispose();
+    _informacionAdicionalController.dispose();
+    _ciudadController.dispose();
+    _estadoController.dispose();
+    _codigoPostalController.dispose();
+    _paisController.dispose();
     super.dispose();
   }
 
-  void _confirmarOrden() async {
-    // Aquí se procesaría la orden
-    if (_formKey.currentState!.validate()) {
-      // 1. Obtener el token del usuario logueado
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final token = authProvider.token;
+  Future<void> _guardarNuevaDireccion() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      if (token == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: No estás autenticado. Por favor inicia sesión.')),
-        );
-        return;
-      }
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: No estás autenticado')),
+      );
+      return;
+    }
 
-      // preparar datos de la orden
-      final cart = Provider.of<CartProvider>(context, listen: false);
+    final nuevaDireccion = Direccion(
+      nombreDestinatario: _nombreDestinatarioController.text.trim(),
+      callePrincipal: _callePrincipalController.text.trim(),
+      numeroExterior: _numeroExteriorController.text.trim(),
+      informacionAdicional: _informacionAdicionalController.text.trim().isEmpty 
+          ? null 
+          : _informacionAdicionalController.text.trim(),
+      ciudad: _ciudadController.text.trim(),
+      estado: _estadoController.text.trim(),
+      codigoPostal: _codigoPostalController.text.trim(),
+      pais: _paisController.text.trim(),
+      principalEnvio: _esPrincipal,
+    );
 
-      // 2. Crear el request de laorden en el servidor (para prueba usaremos IDs hardcodeados (fijos))
-      final orderData = {
-        "direccionEnvio": {
-          "idDireccion": 3
-          },
-        "metodoPago": { 
-            "idMetodoPago": 1 
+    final direccionProvider = Provider.of<DireccionProvider>(context, listen: false);
+    final exito = await direccionProvider.crearDireccion(token, nuevaDireccion);
+
+    if (!mounted) return;
+
+    if (exito) {
+      setState(() {
+        _mostrarFormulario = false;
+        _direccionSeleccionada = direccionProvider.direcciones.last;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dirección guardada exitosamente')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al guardar la dirección')),
+      );
+    }
+  }
+
+  Future<void> _confirmarOrden() async {
+    if (_direccionSeleccionada == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor selecciona o crea una dirección de envío')),
+      );
+      return;
+    }
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final token = authProvider.token;
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: No estás autenticado')),
+      );
+      return;
+    }
+
+    final cart = Provider.of<CartProvider>(context, listen: false);
+
+    final orderData = {
+      "direccionEnvio": {
+        "idDireccion": _direccionSeleccionada!.idDireccion
+      },
+      "metodoPago": { 
+        "idMetodoPago": 1 
+      },
+      "observacionCliente": "Pedido realizado desde la app móvil",
+      "detalles": cart.cartItems.map((item) => {
+        "producto": { 
+          "idProducto": item.product.id
         },
-        "observacionCliente": "Por favor, entregar en portería.", 
-        "detalles": cart.cartItems.map((item) => {
-          "producto": { 
-            "idProducto": item.product.id
-            },
-          "cantidad": item.quantity,
-          //"precioUnitario": item.product.price
-        }).toList(),
-        //"montoTotal": cart.totalAmount
-      };
-      
-      // 3. Enviar al Backend
-      final apiService = ApiService();
-      final exito = await apiService.createOrder(token, orderData);
+        "cantidad": item.quantity,
+      }).toList(),
+    };
+    
+    final apiService = ApiService();
+    final exito = await apiService.createOrder(token, orderData);
 
-      if (exito) {
-        cart.clear(); // Limpiamos carrito local
-        if (!mounted) return;
+    if (exito) {
+      cart.clear();
+      if (!mounted) return;
 
       showDialog(
         context: context,
@@ -83,7 +155,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           actions: [
             TextButton(
               onPressed: () {
-               // Cerrar diálogo y volver al Home, borrando el historial para no volver al checkout
                 Navigator.of(ctx).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const HomeScreen()),
                   (route) => false,
@@ -95,89 +166,331 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       );
     } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al procesar el pedido. Intenta nuevamente.')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al procesar el pedido. Intenta nuevamente.')),
+      );
     }
   }
 
-
- @override
+  @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Datos de Envío")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+      appBar: AppBar(title: const Text("Checkout")),
+      body: FutureBuilder(
+        future: _direccionesFuture,
+        builder: (ctx, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          return Consumer<DireccionProvider>(
+            builder: (ctx, direccionProvider, child) {
+              // Auto-seleccionar dirección principal si existe
+              if (_direccionSeleccionada == null && direccionProvider.direccionPrincipal != null) {
+                _direccionSeleccionada = direccionProvider.direccionPrincipal;
+              }
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Resumen del pedido
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.blue.shade100),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text("Total a Pagar:", 
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text("\$${cart.totalAmount.toStringAsFixed(2)}", 
+                            style: const TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Sección de direcciones
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Dirección de Envío", 
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        if (direccionProvider.tieneDirecciones && !_mostrarFormulario)
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _mostrarFormulario = true;
+                              });
+                            },
+                            icon: const Icon(Icons.add),
+                            label: const Text("Nueva"),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Mostrar direcciones existentes o formulario
+                    if (_mostrarFormulario)
+                      _buildFormularioNuevaDireccion()
+                    else if (direccionProvider.tieneDirecciones)
+                      _buildListaDirecciones(direccionProvider)
+                    else
+                      _buildSinDirecciones(),
+
+                    const SizedBox(height: 30),
+
+                    // Botón de confirmación
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: cart.itemCount == 0 ? null : _confirmarOrden,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text("CONFIRMAR PEDIDO", 
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSinDirecciones() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const Icon(Icons.location_off, size: 60, color: Colors.grey),
+            const SizedBox(height: 15),
+            const Text("No tienes direcciones guardadas", 
+              style: TextStyle(fontSize: 16, color: Colors.grey)),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  _mostrarFormulario = true;
+                });
+              },
+              icon: const Icon(Icons.add),
+              label: const Text("Agregar Dirección"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListaDirecciones(DireccionProvider provider) {
+    return Column(
+      children: provider.direcciones.map((direccion) {
+        final isSelected = _direccionSeleccionada?.idDireccion == direccion.idDireccion;
+        
+        return Card(
+          color: isSelected ? Colors.blue.shade50 : null,
+          child: ListTile(
+            leading: Radio<int>(
+              value: direccion.idDireccion!,
+              groupValue: _direccionSeleccionada?.idDireccion,
+              onChanged: (value) {
+                setState(() {
+                  _direccionSeleccionada = direccion;
+                });
+              },
+            ),
+            title: Text(direccion.nombreDestinatario,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(
+              "${direccion.callePrincipal} ${direccion.numeroExterior}\n"
+              "${direccion.ciudad}, ${direccion.estado} ${direccion.codigoPostal}",
+            ),
+            trailing: direccion.principalEnvio 
+              ? const Chip(
+                  label: Text("Principal", style: TextStyle(fontSize: 10)),
+                  backgroundColor: Colors.green,
+                  labelStyle: TextStyle(color: Colors.white),
+                )
+              : null,
+            onTap: () {
+              setState(() {
+                _direccionSeleccionada = direccion;
+              });
+            },
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildFormularioNuevaDireccion() {
+    return Form(
+      key: _formKey,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Resumen rápido
-              Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.blue.shade100),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Nueva Dirección", 
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _mostrarFormulario = false;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: _nombreDestinatarioController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre del destinatario',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Total a Pagar:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text("\$${cart.totalAmount.toStringAsFixed(2)}", style: const TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.bold)),
-                  ],
+                validator: (v) => v!.isEmpty ? 'Requerido' : null,
+              ),
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: _callePrincipalController,
+                decoration: const InputDecoration(
+                  labelText: 'Calle principal',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.home),
                 ),
+                validator: (v) => v!.isEmpty ? 'Requerido' : null,
+              ),
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: _numeroExteriorController,
+                decoration: const InputDecoration(
+                  labelText: 'Número exterior',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.tag),
+                ),
+                validator: (v) => v!.isEmpty ? 'Requerido' : null,
+              ),
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: _informacionAdicionalController,
+                decoration: const InputDecoration(
+                  labelText: 'Información adicional (opcional)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.info_outline),
+                  hintText: 'Ej: Apartamento, piso, etc.',
+                ),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 15),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _ciudadController,
+                      decoration: const InputDecoration(
+                        labelText: 'Ciudad',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) => v!.isEmpty ? 'Requerido' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _estadoController,
+                      decoration: const InputDecoration(
+                        labelText: 'Estado',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) => v!.isEmpty ? 'Requerido' : null,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _codigoPostalController,
+                      decoration: const InputDecoration(
+                        labelText: 'Código Postal',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (v) => v!.isEmpty ? 'Requerido' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _paisController,
+                      decoration: const InputDecoration(
+                        labelText: 'País',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) => v!.isEmpty ? 'Requerido' : null,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+
+              CheckboxListTile(
+                title: const Text("Establecer como dirección principal"),
+                value: _esPrincipal,
+                onChanged: (value) {
+                  setState(() {
+                    _esPrincipal = value ?? false;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
               ),
               const SizedBox(height: 20),
-              
-              const Text("Información de Entrega", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 15),
 
-              // Campos del Formulario
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Nombre Completo', border: OutlineInputBorder(), prefixIcon: Icon(Icons.person)),
-                validator: (v) => v!.isEmpty ? 'Requerido' : null,
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _addressController,
-                decoration: const InputDecoration(labelText: 'Dirección de Entrega', border: OutlineInputBorder(), prefixIcon: Icon(Icons.home)),
-                validator: (v) => v!.isEmpty ? 'Requerido' : null,
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Teléfono', border: OutlineInputBorder(), prefixIcon: Icon(Icons.phone)),
-                keyboardType: TextInputType.phone,
-                validator: (v) => v!.isEmpty ? 'Requerido' : null,
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Correo para confirmación', border: OutlineInputBorder(), prefixIcon: Icon(Icons.email)),
-                keyboardType: TextInputType.emailAddress,
-                validator: (v) => !v!.contains('@') ? 'Email inválido' : null,
-              ),
-              
-              const SizedBox(height: 30),
-
-              // Botón de Confirmación
               SizedBox(
                 width: double.infinity,
-                height: 50,
                 child: ElevatedButton(
-                  onPressed: cart.itemCount == 0 ? null : _confirmarOrden, // Deshabilitar si carrito vacío
+                  onPressed: _guardarNuevaDireccion,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
                   ),
-                  child: const Text("CONFIRMAR PEDIDO", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text("GUARDAR DIRECCIÓN"),
                 ),
               ),
             ],

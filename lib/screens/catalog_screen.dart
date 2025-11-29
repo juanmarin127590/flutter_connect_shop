@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_connect_shop/models/product.dart';
+import 'package:flutter_connect_shop/providers/products_provider.dart';
 import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
+import 'package:provider/provider.dart';
 
 class CatalogScreen extends StatelessWidget {
   final String? categoryFilter; // Opcional: Si es null, muestra todo
@@ -9,15 +11,26 @@ class CatalogScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Obtenemos los productos del Provider (ya no de la lista estática dummy)
+    final productsData = Provider.of<ProductsProvider>(context);
+    final products = productsData.items;
+    final isLoading = productsData.isLoading;
+
+
     final displayedProducts = categoryFilter == null
-        ? loadedProducts
-        : loadedProducts
+        ? products
+        : products
               .where((prod) => prod.category == categoryFilter)
               .toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Catálogo de Productos')),
-      body: displayedProducts.isEmpty
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: () => productsData.fetchAndSetProducts(),
+              child:
+      displayedProducts.isEmpty
           ? Center(
               child: Text(
                 "No hay productos en esta categoría.'$categoryFilter'",
@@ -35,6 +48,7 @@ class CatalogScreen extends StatelessWidget {
               itemBuilder: (ctx, i) =>
                   _CatalogoItem(product: displayedProducts[i]),
             ),
+          ),
     );
   }
 }

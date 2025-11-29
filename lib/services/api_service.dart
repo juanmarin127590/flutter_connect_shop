@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_connect_shop/config/constants.dart';
+import 'package:flutter_connect_shop/models/delivery_address.dart';
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 
@@ -115,5 +116,95 @@ class ApiService {
     }
   }
 
-}
+  
+    // Obtener direcciones del usuario
+    Future<List<dynamic>> getDirecciones(String token) async {
+      final url = Uri.parse('${ApiConstants.baseUrl}/direcciones');
+      
+      try {
+        final response = await http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+  
+        if (response.statusCode == 200) {
+          return json.decode(response.body);
+        } else {
+          throw Exception('Error al cargar direcciones');
+        }
+      } catch (error) {
+        throw Exception('Error de conexión: $error');
+      }
+    }
+  
+    // Crear nueva dirección
+    Future<Map<String, dynamic>?> crearDireccion(String token, Direccion direccion) async {
+      final url = Uri.parse('${ApiConstants.baseUrl}/direcciones');
+      
+      try {
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: json.encode(direccion.toJson()),
+        );
+  
+        if (response.statusCode == 201) {
+          return json.decode(response.body);
+        }
+        return null;
+      } catch (error) {
+        return null;
+      }
+    }
+  
+    // Actualizar dirección
+    Future<Map<String, dynamic>?> actualizarDireccion(String token, int idDireccion, Direccion direccion) async {
+      final url = Uri.parse('${ApiConstants.baseUrl}/direcciones/$idDireccion');
+      
+      try {
+        final response = await http.put(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: json.encode(direccion.toJson()),
+        );
+  
+        if (response.statusCode == 200) {
+          return json.decode(response.body);
+        }
+        return null;
+      } catch (error) {
+        return null;
+      }
+    }
+  
+    // Eliminar dirección
+    Future<bool> eliminarDireccion(String token, int idDireccion) async {
+      final url = Uri.parse('${ApiConstants.baseUrl}/direcciones/$idDireccion');
+      
+      try {
+        final response = await http.delete(
+          url,
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        );
+  
+        return response.statusCode == 204;
+      } catch (error) {
+        return false;
+      }
+    }
+  
+
+  }
+
 
