@@ -3,6 +3,7 @@ import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:flutter_connect_shop/providers/delivery_address_provider.dart';
 import 'package:flutter_connect_shop/providers/orders_provider.dart';
 import 'package:flutter_connect_shop/providers/products_provider.dart';
+import 'package:flutter_connect_shop/providers/register_provider.dart';
 import 'package:flutter_connect_shop/repositories/implementations/auth_repository_impl.dart';
 import 'package:flutter_connect_shop/repositories/implementations/user_repository_impl.dart';
 import 'package:flutter_connect_shop/screens/home_screen.dart';
@@ -29,10 +30,11 @@ class ConnetShopApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
+        ChangeNotifierProvider(create: (_) => RegisterProvider(userRepository)),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => ProductsProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
-        ChangeNotifierProvider(create: (_) => DireccionProvider()), // Agregar este
+        ChangeNotifierProvider(create: (_) => DireccionProvider()),
       ],
       child: MaterialApp(
         title: 'Connect Shop',

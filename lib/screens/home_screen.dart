@@ -7,6 +7,7 @@ import 'package:flutter_connect_shop/screens/catalog_screen.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
 import 'package:flutter_connect_shop/screens/orders_screen.dart';
 import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
+import 'package:flutter_connect_shop/screens/profile_screen.dart';
 import 'package:flutter_connect_shop/screens/register_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -200,6 +201,17 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             const Divider(), // Línea divisora
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Mi Perfil'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                );
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.login),
               title: const Text('Login'),

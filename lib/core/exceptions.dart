@@ -1,7 +1,6 @@
-/// Excepciones personalizadas para un manejo de errores más robusto
-/// Estas excepciones permiten identificar y manejar errores específicos en toda la aplicación
+// Excepciones personalizadas para un manejo de errores más robusto
 
-/// Excepción base para todas las excepciones personalizadas de la app
+// Excepción base para todas las excepciones personalizadas de la app
 abstract class AppException implements Exception {
   final String message;
   final String? code;
