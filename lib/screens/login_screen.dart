@@ -37,12 +37,13 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
-        // Mostrar error si falló (credenciales incorrectas)
+        // Mostrar error con el mensaje específico del provider
+        final errorMsg = authProvider.errorMessage ?? 'Correo o contraseña incorrectos.';
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Error de acceso'),
-            content: const Text('Correo o contraseña incorrectos.'),
+            content: Text(errorMsg),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),

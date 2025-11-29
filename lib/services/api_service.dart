@@ -85,5 +85,35 @@ class ApiService {
     }
   }
 
+  // REGISTRO DE NUEVO USUARIO
+  Future<bool> registerUser(String nombre, String apellidos, String email, String password, String telefono) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}/usuarios'); // Endpoint /api/usuarios
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'nombre': nombre,
+          'apellidos': apellidos,
+          'email': email,
+          'password': password,
+          'telefono': telefono,
+          // El backend debería asignar el rol 'CLIENTE' y 'activo: true' por defecto
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true; // Registro exitoso
+      } else {
+        print('Error Registro: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Excepción registro: $e');
+      return false;
+    }
+  }
+
 }
 

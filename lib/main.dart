@@ -2,8 +2,12 @@ import 'package:flutter_connect_shop/providers/auth_provider.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:flutter_connect_shop/providers/orders_provider.dart';
 import 'package:flutter_connect_shop/providers/products_provider.dart';
+import 'package:flutter_connect_shop/providers/register_provider.dart';
+import 'package:flutter_connect_shop/repositories/implementations/auth_repository_impl.dart';
+import 'package:flutter_connect_shop/repositories/implementations/user_repository_impl.dart';
 import 'package:flutter_connect_shop/screens/home_screen.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
+import 'package:flutter_connect_shop/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,11 +34,17 @@ class ConnetShopApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // Crear las instancias de servicios y repositorios
+    final apiService = ApiService();
+    final authRepository = AuthRepositoryImpl(apiService);
+    final userRepository = UserRepositoryImpl(apiService);
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProductsProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
+        ChangeNotifierProvider(create: (_) => RegisterProvider(userRepository)),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
       ],
       child: MaterialApp(

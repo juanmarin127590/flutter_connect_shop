@@ -45,12 +45,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   return Card(
                     margin: const EdgeInsets.all(10),
                     child: ExpansionTile( // Permite desplegar para ver detalles
-                      title: Text("\$${order.total.toStringAsFixed(2)}"),
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Pedido: ${order.id}",
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          Text("Total: \$${order.total.toStringAsFixed(2)}",
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        ],
+                      ),
                       subtitle: Text(
                         "${DateFormat('dd/MM/yyyy hh:mm').format(order.date)} - ${order.status}",
                         style: TextStyle(
                             color: order.status == 'Pendiente de Pago' 
-                                ? Colors.orange 
+                                ? const Color.fromARGB(255, 255, 0, 0) 
                                 : Colors.green),
                       ),
                       children: order.items.map((item) => ListTile(

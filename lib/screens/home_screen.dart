@@ -7,6 +7,7 @@ import 'package:flutter_connect_shop/screens/catalog_screen.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
 import 'package:flutter_connect_shop/screens/orders_screen.dart';
 import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
+import 'package:flutter_connect_shop/screens/register_screen.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -216,6 +217,10 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 // Tarea: Implementar RegisterScreen similar a LoginScreen
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                );
               },
             ),
           ],
