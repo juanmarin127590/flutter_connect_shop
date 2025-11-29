@@ -1,4 +1,5 @@
 import 'package:flutter_connect_shop/models/product.dart';
+import 'package:flutter_connect_shop/providers/auth_provider.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
 import 'package:flutter_connect_shop/providers/products_provider.dart';
 import 'package:flutter_connect_shop/screens/cart_screen.dart';
@@ -147,16 +148,55 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: const BoxDecoration(color: Colors.orange),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
                     'assets/images/logo.png',
-                    height: 60,
+                    height: 50,
                     color: Colors.white,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   const Text(
                     'Connect Shop',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
+                    style: TextStyle(color: Colors.white, fontSize: 22),
+                  ),
+                  const SizedBox(height: 4),
+                  // Mensaje de bienvenida con el nombre del usuario
+                  Consumer<AuthProvider>(
+                    builder: (ctx, authProvider, _) {
+                      if (authProvider.isAuthenticated && authProvider.userEmail != null) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '¡Bienvenido,',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                            Text(
+                              '${authProvider.userEmail!}!',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        );
+                      }
+                      return const Text(
+                        'Bienvenido, invitado',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

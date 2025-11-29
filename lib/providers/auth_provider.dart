@@ -5,12 +5,16 @@ import '../repositories/interfaces/auth_repository.dart';
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _authRepository;
   String? _token;
+  String? _userEmail;
+  String? _userName;
   bool _isLoading = false;
   String? _errorMessage;
 
   // Getters
   bool get isAuthenticated => _token != null;
   String? get token => _token;
+  String? get userEmail => _userEmail;
+  String? get userName => _userName;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -50,6 +54,9 @@ class AuthProvider extends ChangeNotifier {
       );
 
       _token = token;
+      _userEmail = email;
+      // Extraemos el nombre del email (la parte antes del @)
+      _userName = email.split('@')[0];
       _isLoading = false;
       notifyListeners();
       return true;
@@ -79,12 +86,16 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _authRepository.logout();
       _token = null;
+      _userEmail = null;
+      _userName = null;
       _errorMessage = null;
       notifyListeners();
     } catch (e) {
       print('Error al cerrar sesión: $e');
       // Aunque haya error, limpiamos el estado local
       _token = null;
+      _userEmail = null;
+      _userName = null;
       notifyListeners();
     }
   }
