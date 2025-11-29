@@ -5,6 +5,7 @@ import 'package:flutter_connect_shop/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_connect_shop/screens/catalog_screen.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
+import 'package:flutter_connect_shop/screens/orders_screen.dart';
 import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -16,13 +17,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
- @override
+  @override
   void initState() {
     super.initState();
     // Usamos addPostFrameCallback para esperar a que termine el build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ProductsProvider>(context, listen: false).fetchAndSetProducts();
+      Provider.of<ProductsProvider>(
+        context,
+        listen: false,
+      ).fetchAndSetProducts();
     });
   }
 
@@ -184,6 +187,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.payment),
+              title: const Text('Mis Pedidos'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                );
+              },
+            ),
             const Divider(), // Línea divisora
             ListTile(
               leading: const Icon(Icons.login),
@@ -209,7 +223,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       body: isLoading
-          ? const Center(child: CircularProgressIndicator()) // Spinner mientras carga
+          ? const Center(
+              child: CircularProgressIndicator(),
+            ) // Spinner mientras carga
           : RefreshIndicator(
               // Al refrescar, recargamos los productos del Provider
               onRefresh: () => Provider.of<ProductsProvider>(
@@ -239,27 +255,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     // Grid de Productos de la API
-                    products.isEmpty 
+                    products.isEmpty
                         ? const Padding(
                             padding: EdgeInsets.all(20),
                             child: Text("No se pudieron cargar los productos."),
                           )
-                          // GridView para los productos principales
-                          : GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              padding: const EdgeInsets.all(10.0),
-                              itemCount: products.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4, // 4 columnas
-                                    childAspectRatio: 3 / 4, // Relación de aspecto de la tarjeta
-                                    crossAxisSpacing: 10,
-                                    mainAxisSpacing: 10,
-                                  ),
-                              //Pasmaos los productos de la BD al widget ProductItem
-                              itemBuilder: (ctx, i) =>ProductItem(product: products[i]),
-                            ),
+                        // GridView para los productos principales
+                        : GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(10.0),
+                            itemCount: products.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4, // 4 columnas
+                                  childAspectRatio:
+                                      3 /
+                                      4, // Relación de aspecto de la tarjeta
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                ),
+                            //Pasmaos los productos de la BD al widget ProductItem
+                            itemBuilder: (ctx, i) =>
+                                ProductItem(product: products[i]),
+                          ),
                   ],
                 ),
               ),
