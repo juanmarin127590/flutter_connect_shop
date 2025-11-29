@@ -3,8 +3,7 @@ import '../core/exceptions.dart';
 import '../models/user.dart';
 import '../repositories/interfaces/user_repository.dart';
 
-/// Provider encargado de gestionar el registro de nuevos usuarios
-/// Separa la lógica de registro del AuthProvider (que se usa solo para login)
+// Provider encargado de gestionar el registro de nuevos usuarios
 class RegisterProvider extends ChangeNotifier {
   final UserRepository _userRepository;
   bool _isLoading = false;
