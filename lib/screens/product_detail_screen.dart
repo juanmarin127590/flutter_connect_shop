@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_connect_shop/models/product.dart';
 import 'package:flutter_connect_shop/providers/cart_provider.dart';
+import 'package:flutter_connect_shop/widgets/smart_image.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
@@ -24,7 +25,11 @@ class ProductDetailsScreen extends StatelessWidget {
               width: double.infinity,
               child: Hero(
                 tag: product.id,
-                child: Image.asset(product.imageUrl, fit: BoxFit.cover),
+                child: SmartImage(
+                  imageUrl: product.imageUrl,
+                  fit: BoxFit.cover,
+                  height: 300,
+                ),
               ),
             ),
             const SizedBox(height: 20),

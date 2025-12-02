@@ -28,7 +28,7 @@ class DireccionProvider extends ChangeNotifier {
       final apiService = ApiService();
       final data = await apiService.getDirecciones(token);
       
-      _direcciones = (data as List)
+      _direcciones = (data)
           .map((item) => Direccion.fromJson(item))
           .toList();
     } catch (error) {

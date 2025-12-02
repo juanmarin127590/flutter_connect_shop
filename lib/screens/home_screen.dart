@@ -10,6 +10,7 @@ import 'package:flutter_connect_shop/screens/orders_screen.dart';
 import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
 import 'package:flutter_connect_shop/screens/profile_screen.dart';
 import 'package:flutter_connect_shop/screens/register_screen.dart';
+import 'package:flutter_connect_shop/widgets/smart_image.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -421,7 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) =>
-                      const CatalogScreen(categoryFilter: 'Relojes'),
+                      const CatalogScreen(categoryFilter: 'Hogar y Muebles'),
                 ),
               );
             },
@@ -473,9 +474,6 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // LÓGICA DE DETECCIÓN DE IMAGEN
-    final isNetworkImage = product.imageUrl.startsWith('http');
-
     return GestureDetector(
       onTap: () {
         // Navegar a la pantalla de detalles del producto
@@ -504,20 +502,12 @@ class ProductItem extends StatelessWidget {
             Expanded(
               child: Hero(
                 tag: product.id,
-                child: ClipRRect(
+                child: SmartImage(
+                  imageUrl: product.imageUrl,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(10),
                   ),
-                  child: isNetworkImage
-                      ? Image.network(
-                          product.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, error, stackTrace) => Image.asset(
-                            'assets/images/logo.png',
-                            fit: BoxFit.contain,
-                          ), // Fallback si la URL falla
-                        )
-                      : Image.asset(product.imageUrl, fit: BoxFit.cover),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),

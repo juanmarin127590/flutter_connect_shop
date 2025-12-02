@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_connect_shop/models/product.dart';
 import 'package:flutter_connect_shop/providers/products_provider.dart';
 import 'package:flutter_connect_shop/screens/product_detail_screen.dart';
+import 'package:flutter_connect_shop/widgets/smart_image.dart';
 import 'package:provider/provider.dart';
 
 class CatalogScreen extends StatelessWidget {
@@ -76,12 +77,13 @@ class _CatalogoItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: ClipRRect(
+              child: SmartImage(
+                imageUrl: product.imageUrl,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10),
                   topRight: Radius.circular(10),
                 ),
-                child: Image.asset(product.imageUrl, fit: BoxFit.cover),
+                fit: BoxFit.cover,
               ),
             ),
             Padding(
