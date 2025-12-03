@@ -8,6 +8,7 @@ import 'package:flutter_connect_shop/repositories/implementations/auth_repositor
 import 'package:flutter_connect_shop/repositories/implementations/user_repository_impl.dart';
 import 'package:flutter_connect_shop/screens/home_screen.dart';
 import 'package:flutter_connect_shop/screens/login_screen.dart';
+import 'package:flutter_connect_shop/screens/orders_screen.dart';
 import 'package:flutter_connect_shop/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +45,9 @@ class ConnetShopApp extends StatelessWidget {
           scaffoldBackgroundColor: const Color(0xFFF4F6F9), // Color de fondo
           useMaterial3: true,
         ),
+        routes: {
+          '/orders': (context) => const OrdersScreen(),
+        },
         home: Consumer<AuthProvider>(
           builder: (ctx, auth, _) {
             // Si está autenticado, vamos al Home

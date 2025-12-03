@@ -72,10 +72,11 @@ class CartScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(8),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundImage: AssetImage(
-                                item.product.imageUrl,
-                              ),
-                              backgroundColor: Colors.transparent,
+                              backgroundImage:
+                                  item.product.imageUrl.startsWith('http')
+                                  ? NetworkImage(item.product.imageUrl)
+                                  : const AssetImage('assets/images/logo.png')
+                                        as ImageProvider,
                             ),
                             title: Text(item.product.name),
                             subtitle: Text(

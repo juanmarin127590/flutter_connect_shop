@@ -131,7 +131,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       "metodoPago": { 
         "idMetodoPago": 1 
       },
-      "observacionCliente": "Pedido realizado desde la app móvil",
+      "observacionCliente": "Pedido realizado desde la google app",
       "detalles": cart.cartItems.map((item) => {
         "producto": { 
           "idProducto": item.product.id

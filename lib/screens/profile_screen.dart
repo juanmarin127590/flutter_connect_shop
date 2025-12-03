@@ -34,15 +34,27 @@ class ProfileScreen extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
+                  Colors.orange.shade200,
                   Colors.orange.shade400,
                   Colors.orange.shade600,
                 ],
               ),
             ),
             child: Column(
-              children: [
-                // Avatar
-                CircleAvatar(
+                children: [
+                // Avatar con elevación
+                Container(
+                  decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                    ),
+                  ],
+                  ),
+                  child: CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.white,
                   child: Icon(
@@ -50,30 +62,70 @@ class ProfileScreen extends StatelessWidget {
                     size: 60,
                     color: Colors.orange.shade600,
                   ),
+                  ),
                 ),
                 const SizedBox(height: 16),
-                // Información del usuario
-                const Text(
+                // Información del usuario con sombra
+                Container(
+                  decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                    ),
+                  ],
+                  ),
+                  child: const Text(
                   'Usuario Conectado',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
+                  ),
                 ),
                 const SizedBox(height: 8),
+                // Badge de sesión activa con elevación y animación
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    colors: [
+                    Colors.green.shade400,
+                    Colors.green.shade600,
+                    ],
                   ),
-                  child: const Text(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                    color: Colors.green.withOpacity(0.5),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                    ),
+                  ],
+                  ),
+                  child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
                     'Sesión activa',
                     style: TextStyle(
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
                       fontSize: 14,
                     ),
+                    ),
+                  ],
                   ),
                 ),
               ],
@@ -112,7 +164,6 @@ class ProfileScreen extends StatelessWidget {
             title: 'Mis Pedidos',
             subtitle: 'Ver historial de pedidos',
             onTap: () {
-              Navigator.pop(context);
               Navigator.pushNamed(context, '/orders');
             },
           ),
