@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/exceptions.dart';
@@ -11,6 +12,7 @@ import '../interfaces/auth_repository.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final ApiService _apiService;
   static const String _tokenKey = 'jwt_token';
+  static const String _rolesKey = 'user_roles';
 
   AuthRepositoryImpl(this._apiService);
 
@@ -26,6 +28,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (token != null && token.isNotEmpty) {
         // Guardar el token automáticamente
         await saveToken(token);
+        // Extraer y guardar roles del JWT
+        final roles = _extractRolesFromToken(token);
+        await saveRoles(roles);
         return token;
       } else {
         // Si no hay token, las credenciales son inválidas
@@ -53,6 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logout() async {
     try {
       await deleteToken();
+      await deleteRoles();
     } catch (e) {
       // Si hay error al eliminar el token, lo registramos pero no fallamos
       print('Error al eliminar token en logout: $e');
@@ -100,5 +106,95 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> isAuthenticated() async {
     final token = await getStoredToken();
     return token != null && token.isNotEmpty;
+  }
+
+  @override
+  Future<List<String>?> getStoredRoles() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final rolesJson = prefs.getStringList(_rolesKey);
+      return rolesJson;
+    } catch (e) {
+      print('Error al obtener roles almacenados: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<void> saveRoles(List<String> roles) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_rolesKey, roles);
+    } catch (e) {
+      print('Error al guardar roles: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteRoles() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_rolesKey);
+    } catch (e) {
+      print('Error al eliminar roles: $e');
+    }
+  }
+
+  /// Extrae los roles del token JWT
+  List<String> _extractRolesFromToken(String token) {
+    try {
+      // El JWT tiene 3 partes separadas por puntos: header.payload.signature
+      final parts = token.split('.');
+      if (parts.length != 3) {
+        print('JWT ERROR: Token no tiene 3 partes');
+        return ['CLIENTE']; // Rol por defecto
+      }
+
+      // Decodificar el payload (segunda parte)
+      final payload = parts[1];
+      // Normalizar Base64 (agregar padding si es necesario)
+      final normalized = base64Url.normalize(payload);
+      final decoded = utf8.decode(base64Url.decode(normalized));
+      final payloadMap = json.decode(decoded) as Map<String, dynamic>;
+
+      print('JWT PAYLOAD COMPLETO: $payloadMap');
+
+      // Extraer roles del payload
+      if (payloadMap['roles'] != null) {
+        List<String> extractedRoles = [];
+
+        if (payloadMap['roles'] is List) {
+          // Los roles vienen como lista de objetos con "authority"
+          for (var roleItem in payloadMap['roles']) {
+            if (roleItem is Map && roleItem['authority'] != null) {
+              String authority = roleItem['authority'].toString();
+              // Remover el prefijo "ROLE_" si existe
+              String cleanRole = authority.replaceFirst('ROLE_', '');
+              extractedRoles.add(cleanRole);
+            } else if (roleItem is String) {
+              // Por si acaso viene como string directo
+              String cleanRole = roleItem.replaceFirst('ROLE_', '');
+              extractedRoles.add(cleanRole);
+            }
+          }
+          print('ROLES EXTRAÍDOS: $extractedRoles');
+          return extractedRoles.isNotEmpty ? extractedRoles : ['CLIENTE'];
+        } else if (payloadMap['roles'] is String) {
+          String cleanRole = (payloadMap['roles'] as String).replaceFirst(
+            'ROLE_',
+            '',
+          );
+          print('ROL EXTRAÍDO (string): $cleanRole');
+          return [cleanRole];
+        }
+      }
+
+      print('JWT WARNING: No se encontraron roles en el payload');
+      // Si no hay roles en el JWT, usar rol por defecto
+      return ['CLIENTE'];
+    } catch (e) {
+      print('Error al extraer roles del token: $e');
+      return ['CLIENTE'];
+    }
   }
 }

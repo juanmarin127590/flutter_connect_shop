@@ -7,7 +7,7 @@ class User {
   final String email;
   final String telefono;
   final String? password; // Solo se usa al registrar, no se recibe del backend
-  final String? rol;
+  final List<String>? roles; // Lista de roles del usuario
   final bool? activo;
 
   User({
@@ -17,19 +17,32 @@ class User {
     required this.email,
     required this.telefono,
     this.password,
-    this.rol,
+    this.roles,
     this.activo,
   });
 
   /// Constructor factory para crear un User desde JSON (respuesta del backend)
   factory User.fromJson(Map<String, dynamic> json) {
+    // Extraer roles - pueden venir como String único o como lista
+    List<String>? rolesList;
+    if (json['roles'] != null) {
+      if (json['roles'] is List) {
+        rolesList = List<String>.from(json['roles']);
+      } else if (json['roles'] is String) {
+        rolesList = [json['roles']];
+      }
+    } else if (json['rol'] != null) {
+      // Compatibilidad con backend que envía 'rol' en singular
+      rolesList = [json['rol']];
+    }
+
     return User(
       id: json['idUsuario'],
       nombre: json['nombre'] ?? '',
       apellidos: json['apellidos'] ?? '',
       email: json['email'] ?? '',
       telefono: json['telefono'] ?? '',
-      rol: json['rol'] ?? 'CLIENTE',
+      roles: rolesList ?? ['CLIENTE'],
       activo: json['activo'] ?? true,
     );
   }
@@ -43,7 +56,7 @@ class User {
       'email': email,
       'telefono': telefono,
       if (password != null) 'password': password,
-      if (rol != null) 'rol': rol,
+      if (roles != null && roles!.isNotEmpty) 'rol': roles!.first,
       if (activo != null) 'activo': activo,
     };
   }
@@ -69,7 +82,7 @@ class User {
     String? email,
     String? telefono,
     String? password,
-    String? rol,
+    List<String>? roles,
     bool? activo,
   }) {
     return User(
@@ -79,11 +92,19 @@ class User {
       email: email ?? this.email,
       telefono: telefono ?? this.telefono,
       password: password ?? this.password,
-      rol: rol ?? this.rol,
+      roles: roles ?? this.roles,
       activo: activo ?? this.activo,
     );
   }
 
   /// Devuelve el nombre completo del usuario
   String get nombreCompleto => '$nombre $apellidos';
+
+  /// Verifica si el usuario tiene un rol específico
+  bool hasRole(String role) {
+    return roles?.contains(role) ?? false;
+  }
+
+  /// Verifica si el usuario es administrador
+  bool get isAdmin => hasRole('ADMINISTRADOR') || hasRole('ADMIN');
 }

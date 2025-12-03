@@ -79,7 +79,7 @@ void main() {
       expect(user.apellidos, apellidos);
       expect(user.email, email);
       expect(user.telefono, telefono);
-      expect(user.rol, 'CLIENTE');
+      expect(user.roles, ['CLIENTE']);
       expect(user.activo, true);
 
       // Verificar que se llamó al API con los datos correctos

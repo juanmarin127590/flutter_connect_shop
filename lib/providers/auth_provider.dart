@@ -7,6 +7,7 @@ class AuthProvider extends ChangeNotifier {
   String? _token;
   String? _userEmail;
   String? _userName;
+  List<String>? _userRoles;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -15,8 +16,19 @@ class AuthProvider extends ChangeNotifier {
   String? get token => _token;
   String? get userEmail => _userEmail;
   String? get userName => _userName;
+  List<String>? get userRoles => _userRoles;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+
+  /// Verifica si el usuario tiene rol de administrador
+  bool get isAdmin {
+    final hasAdminRole = _userRoles?.contains('ADMINISTRADOR') ?? false;
+    final hasAdminRoleAlt = _userRoles?.contains('ADMIN') ?? false;
+    print('CHECK isAdmin - Roles actuales: $_userRoles');
+    print('CHECK isAdmin - Tiene ADMINISTRADOR: $hasAdminRole');
+    print('CHECK isAdmin - Tiene ADMIN: $hasAdminRoleAlt');
+    return hasAdminRole || hasAdminRoleAlt;
+  }
 
   // Constructor: Recibe el repositorio por inyección de dependencias
   AuthProvider(this._authRepository) {
@@ -29,6 +41,12 @@ class AuthProvider extends ChangeNotifier {
       final storedToken = await _authRepository.getStoredToken();
       if (storedToken != null && storedToken.isNotEmpty) {
         _token = storedToken;
+        _userRoles = await _authRepository.getStoredRoles();
+
+        print('AUTO LOGIN - Token encontrado');
+        print('AUTO LOGIN - Roles cargados: $_userRoles');
+        print('AUTO LOGIN - Es administrador: $isAdmin');
+
         notifyListeners();
         return true;
       }
@@ -57,6 +75,13 @@ class AuthProvider extends ChangeNotifier {
       _userEmail = email;
       // Extraemos el nombre del email (la parte antes del @)
       _userName = email.split('@')[0];
+      // Obtener roles del repositorio (ya fueron guardados en el login)
+      _userRoles = await _authRepository.getStoredRoles();
+
+      print('AUTH PROVIDER - Token obtenido: ${token.substring(0, 20)}...');
+      print('AUTH PROVIDER - Roles del usuario: $_userRoles');
+      print('AUTH PROVIDER - Es administrador: $isAdmin');
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -88,6 +113,7 @@ class AuthProvider extends ChangeNotifier {
       _token = null;
       _userEmail = null;
       _userName = null;
+      _userRoles = null;
       _errorMessage = null;
       notifyListeners();
     } catch (e) {
@@ -96,6 +122,7 @@ class AuthProvider extends ChangeNotifier {
       _token = null;
       _userEmail = null;
       _userName = null;
+      _userRoles = null;
       notifyListeners();
     }
   }

@@ -46,7 +46,7 @@ class UserRepositoryImpl implements UserRepository {
           apellidos: apellidos,
           email: email,
           telefono: telefono,
-          rol: 'CLIENTE',
+          roles: ['CLIENTE'],
           activo: true,
         );
       } else {
