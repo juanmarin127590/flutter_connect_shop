@@ -1,45 +1,47 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Archivos de metadatos de Dart y Flutter.
 .dart_tool/
+.packages
+.flutter-plugins
 .flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
 
-# Symbolication related
-app.*.symbols
+# Archivos de configuración de IDEs.
+.idea/
+.vscode/
 
-# Obfuscation related
-app.*.map.json
+# Archivos de compilación y artefactos.
+build/
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Archivos de dependencias de plataformas nativas.
+# Es recomendable mantener los Podfile.lock en el control de versiones
+# para asegurar que todos los desarrolladores usen las mismas versiones de dependencias nativas.
+# Sin embargo, si prefieres ignorarlo, puedes descomentar la siguiente línea.
+# **/Podfile.lock
+
+ios/Pods/
+ios/Flutter/App.framework
+ios/Flutter/engine.xcconfig
+ios/.symlinks/
+
+macos/Pods/
+macos/Flutter/ephemeral/
+macos/.symlinks/
+
+# Archivos de log.
+*.log
+
+# Archivos de configuración local que pueden contener secretos.
+# Es una buena práctica tener un archivo de ejemplo en el repositorio
+# (ej. application.properties.example) y que cada desarrollador
+# cree su propio archivo local a partir de ese ejemplo.
+
+# Ignorar el archivo de propiedades de Spring Boot si está en el mismo repo.
+# (Basado en el contexto proporcionado)
+**/application.properties
+
+# Archivos de sistema operativo.
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
