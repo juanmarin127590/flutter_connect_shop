@@ -140,18 +140,31 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }).toList(),
     };
     
-    final apiService = ApiService();
-    final exito = await apiService.createOrder(token, orderData);
+    // Mostrar indicador de carga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
 
-    if (exito) {
+    final apiService = ApiService();
+    final resultado = await apiService.createOrder(token, orderData);
+
+    if (!mounted) return;
+    Navigator.of(context).pop(); // Cerrar loading
+
+    if (resultado['success'] == true) {
       cart.clear();
-      if (!mounted) return;
 
       showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (ctx) => AlertDialog(
+          icon: const Icon(Icons.check_circle, color: Colors.green, size: 64),
           title: const Text('¡Pedido Confirmado!'),
-          content: const Text('¡Gracias por tu compra! Tu orden ha sido procesada.'),
+          content: const Text('¡Gracias por tu compra! Tu orden ha sido procesada exitosamente.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -166,9 +179,45 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       );
     } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al procesar el pedido. Intenta nuevamente.')),
+      // Mostrar error específico del backend
+      final String errorMessage = resultado['message'] ?? 'Error desconocido';
+      
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          icon: const Icon(Icons.error_outline, color: Colors.red, size: 64),
+          title: const Text('Error al crear pedido'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                errorMessage,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              if (errorMessage.toLowerCase().contains('stock'))
+                const Text(
+                  '💡 Sugerencia: Revisa las cantidades en tu carrito y vuelve a intentar.',
+                  style: TextStyle(fontSize: 14, color: Colors.grey, fontStyle: FontStyle.italic),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('ENTENDIDO'),
+            ),
+            if (errorMessage.toLowerCase().contains('stock'))
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pop(); // Volver al carrito
+                },
+                child: const Text('REVISAR CARRITO'),
+              ),
+          ],
+        ),
       );
     }
   }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/orders_provider.dart';
 import '../providers/auth_provider.dart';
+import '../models/order_status.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -59,9 +60,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       subtitle: Text(
                         "${DateFormat('dd/MM/yyyy hh:mm').format(order.date)} - ${order.status}",
                         style: TextStyle(
-                            color: order.status == 'Pendiente de Pago' 
-                                ? const Color.fromARGB(255, 255, 0, 0) 
-                                : Colors.green),
+                            color: OrderStatus.getColorByName(order.status)),
                       ),
                       children: order.items.map((item) => ListTile(
                         leading: CircleAvatar(

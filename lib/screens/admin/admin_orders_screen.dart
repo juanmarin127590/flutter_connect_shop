@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 import '../../providers/orders_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/order.dart';
+import '../../models/order_status.dart';
 
 /// Pantalla de administración de pedidos
-/// Permite ver todos los pedidos y actualizar sus estados
+/// Permite ver todos los pedidos del sistema y actualizar sus estados
 class AdminOrdersScreen extends StatefulWidget {
   const AdminOrdersScreen({super.key});
 
@@ -25,10 +26,11 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   Future _loadOrders() async {
     final token = Provider.of<AuthProvider>(context, listen: false).token;
+    // ✅ Llamar al método específico de administrador que carga TODOS los pedidos
     return Provider.of<OrdersProvider>(
       context,
       listen: false,
-    ).fetchOrders(token!);
+    ).fetchAllOrdersAdmin(token!);
   }
 
   @override
@@ -65,11 +67,18 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                     color: Colors.red.shade400,
                   ),
                   const SizedBox(height: 16),
-                  Text('Error al cargar pedidos'),
+                  const Text(
+                    'Error al cargar pedidos',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
-                  Text(
-                    '${snapshot.error}',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                    child: Text(
+                      '${snapshot.error}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
@@ -103,7 +112,10 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                               color: Colors.grey,
                             ),
                             SizedBox(height: 16),
-                            Text('No hay pedidos registrados'),
+                            Text(
+                              'No hay pedidos registrados en el sistema',
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ],
                         ),
                       )
@@ -127,7 +139,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
       elevation: 2,
       child: ExpansionTile(
         leading: CircleAvatar(
-          backgroundColor: _getStatusColor(order.status),
+          backgroundColor: OrderStatus.getColorByName(order.status),
           foregroundColor: Colors.white,
           child: Text(
             '#${order.id}',
@@ -145,7 +157,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
             Text(
               order.status,
               style: TextStyle(
-                color: _getStatusColor(order.status),
+                color: OrderStatus.getColorByName(order.status),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -201,14 +213,8 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   }
 
   Widget _buildStatusButtons(Order order) {
-    final statuses = [
-      {'name': 'Pendiente de Pago', 'id': 1},
-      {'name': 'Pagado', 'id': 2},
-      {'name': 'Cancelado', 'id': 3},
-      {'name': 'En Proceso', 'id': 4},
-      {'name': 'Enviado', 'id': 5},
-      {'name': 'Entregado', 'id': 6},
-    ];
+    // Obtener estados desde el modelo OrderStatus
+    final statuses = OrderStatus.toMapList();
 
     return Wrap(
       spacing: 8,
@@ -227,9 +233,10 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
               );
             }
           },
-          selectedColor: _getStatusColor(status['name'] as String),
+          selectedColor: OrderStatus.getColorByName(status['name'] as String),
+          backgroundColor: Colors.grey.shade200,
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+            color: isSelected ? Colors.white : Colors.black87,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         );
@@ -237,51 +244,59 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'pendiente de pago':
-      case 'pendiente':
-        return Colors.orange;
-      case 'pagado':
-      case 'aprobado':
-        return Colors.green;
-      case 'cancelado':
-      case 'anulado':
-        return Colors.red;
-      case 'en proceso':
-        return Colors.blue;
-      case 'enviado':
-        return Colors.purple;
-      case 'entregado':
-        return Colors.teal;
-      default:
-        return Colors.grey;
-    }
-  }
+
 
   Future<void> _updateOrderStatus(
     int orderId,
     int statusId,
     String statusName,
   ) async {
+    // Mostrar indicador de carga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
     try {
-      // TODO: Implementar método en OrdersProvider para actualizar estado
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Estado actualizado a: $statusName'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
-        ),
+      final token = Provider.of<AuthProvider>(context, listen: false).token;
+      final ordersProvider = Provider.of<OrdersProvider>(
+        context,
+        listen: false,
       );
 
-      // Recargar los pedidos
-      setState(() {
-        _ordersFuture = _loadOrders();
-      });
+      final success = await ordersProvider.updateOrderStatus(
+        token!,
+        orderId,
+        statusId,
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Cerrar loading
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Estado actualizado a: $statusName'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        // Recargar los pedidos
+        setState(() {
+          _ordersFuture = _loadOrders();
+        });
+      }
     } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Cerrar loading
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al actualizar estado: $e'),
+          content: Text('❌ Error al actualizar estado: ${e.toString()}'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),

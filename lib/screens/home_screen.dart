@@ -375,6 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 product: Product(
                   // Usamos un ID único para evitar conflictos de Hero tag
                   id: -1 - index,
+                  sku: item['sku'] ?? 'SKU-${-1 - index}', // Add a default or generated SKU
                   name: item['name']!,
                   price: double.parse(item['price']!.replaceAll('\$', '')),
                   imageUrl: item['image']!,
